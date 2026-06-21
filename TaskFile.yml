@@ -1,0 +1,14 @@
+version: '3'
+
+tasks:
+  dev:
+    cmds:
+      - >
+        CompileDaemon
+        -exclude-dir=.git
+        -exclude-dir=tmp
+        -exclude-dir=vendor
+        -exclude-dir=node_modules
+        -build="go build -o ./tmp/main.exe ./cmd/main.go"
+        -command="./tmp/main.exe"
+    silent: false
