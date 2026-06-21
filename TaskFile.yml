@@ -1,7 +1,7 @@
 version: '3'
 
 vars:
-  DB_URL: "postgres://postgres:1674780@localhost:5432/sample-db?sslmode=disable"
+  DB_URL: '{{.DATABASE_URL}}'
 
 tasks:
   dev:
