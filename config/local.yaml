@@ -1,0 +1,11 @@
+env: dev
+http_server: 
+  address: localhost:8000
+
+database: 
+  host: localhost
+  port: 5432
+  name: sample-db
+  username: postgres
+  password: 1674780
+  sslmode: disable
