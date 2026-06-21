@@ -1,5 +1,8 @@
 version: '3'
 
+vars:
+  DB_URL: "postgres://postgres:1674780@localhost:5432/sample-db?sslmode=disable"
+
 tasks:
   dev:
     cmds:
@@ -12,3 +15,23 @@ tasks:
         -build="go build -o ./tmp/main.exe ./cmd/main.go"
         -command="./tmp/main.exe"
     silent: false
+
+  migrate:create:
+    cmds:
+      - migrate create -ext sql -dir migrations -seq {{.CLI_ARGS}}
+  
+  migrate:up:
+    cmds:
+      - migrate -path migrations -database "{{.DB_URL}}" up
+
+  migrate:down:
+    cmds:
+      - migrate -path migrations -database "{{.DB_URL}}" down 1
+
+  migrate:force:
+    cmds:
+      - migrate -path migrations -database "{{.DB_URL}}" force {{.CLI_ARGS}}
+  
+  migrate:version:
+    cmds: 
+      - migrate -path migrations -database "{{.DB_URL}}" version
