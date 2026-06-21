@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -11,12 +12,18 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/nkchakradhari780/practice9/internal/config"
+	"github.com/nkchakradhari780/practice9/internal/storage/postgres"
 )
 
 func main() {
 	// load config
 	cfg := config.MustLoad()
 	// db connection
+	pg, err := postgres.NewPostgres(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer pg.Db.Close()
 	// chi router setup
 	router := chi.NewRouter()
 	// server setup
@@ -28,24 +35,30 @@ func main() {
 
 	slog.Info("starting server....")
 
-	done := make(chan os.Signal, 1)
-
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	
 	go func(){
-		if err := server.ListenAndServe(); err != nil {
-			slog.Error("cannot start server", "", err.Error())
+		if err := server.ListenAndServe(); err != nil  && err != http.ErrServerClosed{
+			slog.Error("cannot start server", "error", err)
 		}
 	}()
 
-	<- done
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+	defer stop()
+
+	<- ctx.Done()
 
 	slog.Info("shutting down server.........")
 
-	ctx, stop := context.WithTimeout(context.Background(), 10*time.Second)
-	defer stop()
+	shutdownContext, cancle := context.WithTimeout(
+		context.Background(), 
+		10*time.Second,
+	)
+	defer cancle()
 
-	if err := server.Shutdown(ctx); err != nil {
+	if err := server.Shutdown(shutdownContext); err != nil {
 		slog.Error("forcing shutdown server", "error", err)
 	}
 
