@@ -25,3 +25,17 @@ func (pg *Postgres) CreateUserDB(user *modules.CreateUser) error {
 
 	return nil
 }
+
+func (pg *Postgres) GetUserByEmail(email string) (*modules.User, error) {
+	query := `SELECT 
+				id, name, email, password, Role, Address
+			  FROM users
+			  	WHERE email = $1`
+
+	var user modules.User
+	if err := pg.Db.QueryRow(query, email).Scan(&user); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

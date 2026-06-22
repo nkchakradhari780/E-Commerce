@@ -30,8 +30,10 @@ func main() {
 	router := chi.NewRouter()
 
 	userService := services.NewUserService(pg)
+	authService := services.NewAuthService(pg)
 
 	routes.RegisterUsersRoute(router, userService)
+	routes.RegisterAuthRoute(router, authService)
 	// server setup
 
 

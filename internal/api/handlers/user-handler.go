@@ -44,7 +44,7 @@ func CreateUserHandler(us services.UsersService) http.HandlerFunc {
 				return
 			}
 
-			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 			return 
 		}
 

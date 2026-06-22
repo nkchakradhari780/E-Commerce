@@ -37,7 +37,6 @@ func GeneralError(err error) *Response {
 func GeneralSuccess(data any) *Response {
 	return &Response{
 		Status: StatusOk, 
-		Error: "",
 		Data: data,
 	}
 }

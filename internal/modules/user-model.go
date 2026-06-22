@@ -10,3 +10,12 @@ type CreateUser struct {
 	Role     string    `json:"role,omitempty" validate:"required"`
 	Address  string    `json:"address,omitempty" validate:"required"`
 }
+
+type User struct {
+	Id       uuid.UUID
+	Name     string
+	Email    string
+	Password string
+	Role     string
+	Address  string
+}

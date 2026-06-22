@@ -6,4 +6,5 @@ import (
 
 type Storage interface {
 	CreateUserDB(user *modules.CreateUser) error 
+	GetUserByEmail(email string) (*modules.User, error)
 }
