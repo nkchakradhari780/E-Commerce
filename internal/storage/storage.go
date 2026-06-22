@@ -1,7 +1,9 @@
 package storage
 
-import "github.com/google/uuid"
+import (
+	"github.com/nkchakradhari780/practice9/internal/modules"
+)
 
 type Storage interface {
-	CreateUserDB(id uuid.UUID, name, email, password, role, address string) error
+	CreateUserDB(user *modules.CreateUser) error 
 }
