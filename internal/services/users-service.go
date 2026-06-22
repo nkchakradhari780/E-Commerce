@@ -6,13 +6,18 @@ import (
 )
 
 type UsersService interface {
+	CreateUserService(user *modules.CreateUser) error
 }
 
 type usersService struct {
 	storage storage.Storage
 }
 
-func CreateUserService(user *modules.CreateUser) error {
+func NewUserService(storage storage.Storage) UsersService {
+	return &usersService{storage: storage}
+}
+
+func (us *usersService) CreateUserService(user *modules.CreateUser) error {
 	
 	return nil
 }
