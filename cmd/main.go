@@ -11,7 +11,9 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/nkchakradhari780/practice9/internal/api/routes"
 	"github.com/nkchakradhari780/practice9/internal/config"
+	"github.com/nkchakradhari780/practice9/internal/services"
 	"github.com/nkchakradhari780/practice9/internal/storage/postgres"
 )
 
@@ -26,7 +28,12 @@ func main() {
 	defer pg.Db.Close()
 	// chi router setup
 	router := chi.NewRouter()
+
+	userService := services.NewUserService(pg)
+
+	routes.RegisterUsersRoute(router, userService)
 	// server setup
+
 
 	server := http.Server {
 		Addr: cfg.Addr,
