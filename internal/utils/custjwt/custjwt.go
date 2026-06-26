@@ -62,6 +62,4 @@ func ValidateToken(tokenStr string) (uuid.UUID, error) {
 	}
 
 	return claims.StudentId, nil
-
-	
 }
