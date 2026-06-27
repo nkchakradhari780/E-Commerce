@@ -19,3 +19,11 @@ type User struct {
 	Role     string
 	Address  string
 }
+
+type GetUser struct {
+	Id      uuid.UUID
+	Name    string
+	Email   string
+	Role    string
+	Address string
+}

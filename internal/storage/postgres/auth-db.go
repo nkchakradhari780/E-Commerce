@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (pg *Postgres) CreateRefreshToken(tokenId, userId uuid.UUID, tokenHash string, expiresAt time.Time) error {
+func (pg *Postgres) CreateRefreshTokenDB(tokenId, userId uuid.UUID, tokenHash string, expiresAt time.Time) error {
 	query := `INSERT INTO refresh_tokens 
 				(id, user_id, token_hash, expires_at)
 			  VALUES

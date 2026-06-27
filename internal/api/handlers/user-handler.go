@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/nkchakradhari780/practice9/internal/modules"
 	"github.com/nkchakradhari780/practice9/internal/services"
@@ -49,5 +50,25 @@ func CreateUserHandler(us services.UsersService) http.HandlerFunc {
 		}
 
 		response.WriteJson(w, http.StatusCreated, response.GeneralSuccess(map[string]uuid.UUID{"ID": lastId}))
+	}
+}
+
+func GetUserByIdHandler(us services.UsersService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := chi.URLParam(r, "id")
+
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+			return
+		}
+
+		user, err := us.GetUserByIdService(id)
+		if err != nil {
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+			return
+		}
+
+		response.WriteJson(w, http.StatusOK, response.GeneralSuccess(map[string]any{"user": user}))
 	}
 }

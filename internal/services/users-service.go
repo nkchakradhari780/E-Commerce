@@ -13,6 +13,7 @@ import (
 
 type UsersService interface {
 	CreateUserService(user *modules.CreateUser) (uuid.UUID, error)
+	GetUserByIdService(userId uuid.UUID) (*modules.GetUser, error)
 }
 
 type usersService struct {
@@ -48,4 +49,13 @@ func (us *usersService) CreateUserService(user *modules.CreateUser) (uuid.UUID, 
 	}
 	 
 	return uid, nil
+}
+
+func (us *usersService) GetUserByIdService(userId uuid.UUID) (*modules.GetUser, error) {
+	
+	user, err := us.storage.GetUserByIdDB(userId)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }

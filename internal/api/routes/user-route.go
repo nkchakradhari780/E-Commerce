@@ -11,12 +11,14 @@ func RegisterUsersRoute(mux *chi.Mux, userService services.UsersService) {
 	mux.Route("/users", func(r chi.Router){
 		r.Use(middlewares.AuthMiddleware) // to protect entire /users route
 		r.Post("/", handlers.CreateUserHandler(userService))
+		
 		// r.With(middlewares.AuthMiddleware).Post("/", handlers.CreateUserHandler(userService))  // to protect only a single route
 
 		//**** To protect group of router outside it will not be protected ****//
-		// r.Group(func(r chi.Router){
-		// 	r.Use(middlewares.AuthMiddleware)
-		// 	// endpoints
-		// })
+		r.Group(func(r chi.Router){
+			r.Use(middlewares.AuthMiddleware)
+			// endpoints
+			r.Get("/{id}", handlers.GetUserByIdHandler(userService))
+		})
 	})
 }

@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"github.com/google/uuid"
 	"github.com/nkchakradhari780/practice9/internal/modules"
 )
 
@@ -26,7 +27,7 @@ func (pg *Postgres) CreateUserDB(user *modules.CreateUser) error {
 	return nil
 }
 
-func (pg *Postgres) GetUserByEmail(email string) (*modules.User, error) {
+func (pg *Postgres) GetUserByEmailDB(email string) (*modules.User, error) {
 	query := `SELECT 
 				id, name, email, password, Role, Address
 			  FROM users
@@ -46,5 +47,26 @@ func (pg *Postgres) GetUserByEmail(email string) (*modules.User, error) {
 		return nil, err
 	}
 
+	return &user, nil
+}
+
+func (pg *Postgres) GetUserByIdDB(userId uuid.UUID) (*modules.GetUser, error) {
+	query := `SELECT 
+				id, name, email, role, address
+			  FROM users
+			  WHERE id = $1`
+
+	var user modules.GetUser
+	err := pg.Db.QueryRow(query, userId).Scan(
+		&user.Id,
+		&user.Name,
+		&user.Email, 
+		&user.Role, 
+		&user.Address,
+	)
+
+	if err != nil {
+		return nil, err
+	}
 	return &user, nil
 }

@@ -40,7 +40,7 @@ func (ls *authService) UserLoginService(logReq *modules.LoginUser) (*modules.Use
 		return nil, err
 	}
 
-	user, err := ls.storage.GetUserByEmail(logReq.Email)
+	user, err := ls.storage.GetUserByEmailDB(logReq.Email)
 	if err != nil {
 		slog.Error("email scan error", "error", err.Error())
 		return nil, err
@@ -61,11 +61,10 @@ func (ls *authService) GenerateRefreshToken(userId uuid.UUID, ttl time.Duration)
 
 	tokenHash:= sha256.Sum256([]byte(refreshToken))
 	tokenHashStr := hex.EncodeToString(tokenHash[:])
+	expiresAt := time.Now().Add(ttl).UTC().Local()
 	tokenId := uuid.New()
 
-	expiresAt := time.Now().Add(ttl).UTC().Local()
-
-	if err := ls.storage.CreateRefreshToken(tokenId, userId, tokenHashStr, expiresAt); err != nil {
+	if err := ls.storage.CreateRefreshTokenDB(tokenId, userId, tokenHashStr, expiresAt); err != nil {
 		return "", err
 	}
 
