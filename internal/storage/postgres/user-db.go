@@ -12,13 +12,13 @@ func (pg *Postgres) CreateUserDB(user *modules.CreateUser) error {
 				($1, $2, $3, $4, $5, $6)`
 
 	_, err := pg.Db.Exec(
-					query, 
-					user.Id, 
-					user.Name, 
-					user.Email, 
-					user.Password, 
-					user.Role, 
-					user.Address)
+		query,
+		user.Id,
+		user.Name,
+		user.Email,
+		user.Password,
+		user.Role,
+		user.Address)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,16 @@ func (pg *Postgres) GetUserByEmail(email string) (*modules.User, error) {
 			  	WHERE email = $1`
 
 	var user modules.User
-	if err := pg.Db.QueryRow(query, email).Scan(&user); err != nil {
+	err := pg.Db.QueryRow(query, email).Scan(
+		&user.Id,
+		&user.Name,
+		&user.Email,
+		&user.Password,
+		&user.Role,
+		&user.Address,
+	)
+
+	if err != nil {
 		return nil, err
 	}
 

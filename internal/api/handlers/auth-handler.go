@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -33,13 +34,17 @@ func LoingUserHandler(authService services.AuthService) http.HandlerFunc {
 			return
 		}
 
+		slog.Info("logging body", slog.Any("loginReq", loginReq))
+
 		user, err := authService.UserLoginService(&loginReq)
 		if err != nil {
 			if custerrors.IsValidationError(err) {
+				slog.Info("validation error")
 				validateErrors := custerrors.GetValidationErrors(err)
 				response.WriteJson(w, http.StatusBadRequest, response.ValidationError(validateErrors))
 				return
 			}
+			slog.Info("user login error")
 			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 			return
 		}

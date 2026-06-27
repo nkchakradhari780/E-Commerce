@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"log/slog"
 	"time"
 
 	"github.com/go-playground/validator"
@@ -30,7 +31,8 @@ func NewAuthService(storage storage.Storage) AuthService {
 }
 
 func (ls *authService) UserLoginService(logReq *modules.LoginUser) (*modules.User, error) {
-	if err := validator.New().Struct(&logReq); err != nil {
+	if err := validator.New().Struct(logReq); err != nil {
+		slog.Error("validation error")
 		var validatorError validator.ValidationErrors
 		if errors.As(err, &validatorError) {
 			return nil, custerrors.NewValidationError(validatorError)
@@ -40,6 +42,7 @@ func (ls *authService) UserLoginService(logReq *modules.LoginUser) (*modules.Use
 
 	user, err := ls.storage.GetUserByEmail(logReq.Email)
 	if err != nil {
+		slog.Error("email scan error", "error", err.Error())
 		return nil, err
 	}
 
@@ -58,10 +61,11 @@ func (ls *authService) GenerateRefreshToken(userId uuid.UUID, ttl time.Duration)
 
 	tokenHash:= sha256.Sum256([]byte(refreshToken))
 	tokenHashStr := hex.EncodeToString(tokenHash[:])
+	tokenId := uuid.New()
 
 	expiresAt := time.Now().Add(ttl).UTC().Local()
 
-	if err := ls.storage.CreateRefreshToken(userId, tokenHashStr, expiresAt); err != nil {
+	if err := ls.storage.CreateRefreshToken(tokenId, userId, tokenHashStr, expiresAt); err != nil {
 		return "", err
 	}
 

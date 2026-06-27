@@ -9,7 +9,7 @@ import (
 
 type Storage interface {
 	// Auth DB
-	CreateRefreshToken(userId uuid.UUID, tokenHash string, expiresAt time.Time) error
+	CreateRefreshToken(tokenId, userId uuid.UUID, tokenHash string, expiresAt time.Time) error
 
 	// User DB
 	CreateUserDB(user *modules.CreateUser) error 

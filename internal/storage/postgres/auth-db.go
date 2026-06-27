@@ -6,14 +6,15 @@ import (
 	"github.com/google/uuid"
 )
 
-func (pg *Postgres) CreateRefreshToken(userId uuid.UUID, tokenHash string, expiresAt time.Time) error {
+func (pg *Postgres) CreateRefreshToken(tokenId, userId uuid.UUID, tokenHash string, expiresAt time.Time) error {
 	query := `INSERT INTO refresh_tokens 
-				(user_id, token_hash, expires_at)
+				(id, user_id, token_hash, expires_at)
 			  VALUES
-			  	($1, $2, $3)`
+			  	($1, $2, $3, $4)`
 
 	_, err := pg.Db.Exec(
 					query,
+					tokenId,
 					userId, 
 					tokenHash,
 					expiresAt,
