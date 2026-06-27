@@ -11,7 +11,6 @@ import (
 	"github.com/nkchakradhari780/practice9/internal/modules"
 	"github.com/nkchakradhari780/practice9/internal/services"
 	"github.com/nkchakradhari780/practice9/internal/utils/custerrors"
-	"github.com/nkchakradhari780/practice9/internal/utils/custjwt"
 	"github.com/nkchakradhari780/practice9/internal/utils/response"
 )
 
@@ -47,22 +46,27 @@ func LoingUserHandler(authService services.AuthService) http.HandlerFunc {
 
 		fmt.Println("login Response: ", user)		
 
-		token, err := custjwt.GenerateToken(user.Id, 24 * time.Hour)
+		accessToken, err := authService.GenerateAccessToken(user.Id, 30 * time.Minute)
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+			return
+		}
+
+		refreshToken, err := authService.GenerateRefreshToken(user.Id, 30 * 24 * time.Hour)
 		if err != nil {
 			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
 			return
 		}
 
 		cookie := &http.Cookie{
-			Name: "auth_token", 
-			Value: token, 
+			Name: "refresh_token", 
+			Value: refreshToken,
 			Path: "/",
 			HttpOnly: true,
-			Secure: false, 
+			Secure: false,
 			SameSite: http.SameSiteLaxMode,
-			Expires: time.Now().Add(24 * time.Hour), 
+			Expires: time.Now().Add(30 * 24 * time.Hour),
 		}
-
 		http.SetCookie(w, cookie)
 
 		response.WriteJson(w, http.StatusOK, response.GeneralSuccess(modules.LoginResponse{
@@ -71,7 +75,7 @@ func LoingUserHandler(authService services.AuthService) http.HandlerFunc {
 			Email: user.Email,
 			Role: user.Role,
 			Address: user.Address,
-			Token: token,
+			AccessToken: accessToken,
 		}))
 	}
 }

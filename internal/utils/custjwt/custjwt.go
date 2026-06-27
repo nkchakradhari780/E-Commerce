@@ -14,7 +14,7 @@ var (
 )
 
 type Claims struct {
-	StudentId uuid.UUID
+	UserId uuid.UUID
 	jwt.RegisteredClaims
 }
 
@@ -26,10 +26,24 @@ func secret() []byte {
 	return []byte(s)
 }
 
-func GenerateToken(studentId uuid.UUID, ttl time.Duration) (string, error) {
+func GenerateAccessToken(userId uuid.UUID, ttl time.Duration) (string, error) {
 	now := time.Now()
 	claims := &Claims{
-		StudentId: studentId,
+		UserId: userId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(ttl)),
+			IssuedAt: jwt.NewNumericDate(now),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(secret())
+}
+
+func GenerateRefreshToken(userId uuid.UUID, ttl time.Duration) (string, error) {
+	now := time.Now()
+	claims := &Claims{
+		UserId: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(now.Add(ttl)),
 			IssuedAt: jwt.NewNumericDate(now),
@@ -61,5 +75,5 @@ func ValidateToken(tokenStr string) (uuid.UUID, error) {
 		return uuid.Nil, ErrInvalidToken
 	}
 
-	return claims.StudentId, nil
+	return claims.UserId, nil
 }

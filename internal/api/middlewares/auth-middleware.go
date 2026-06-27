@@ -37,12 +37,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		if token == "" {
-			if cookie, err := r.Cookie("auth_token"); err == nil {
-				token = cookie.Value
-			}
-		}
-
-		if token == "" {
 			slog.Error("token missing")
 			w.WriteHeader(http.StatusUnauthorized)
 			_ = json.NewEncoder(w).Encode(ErrsResp{Error: "missing token"})
