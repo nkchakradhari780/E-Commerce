@@ -9,5 +9,6 @@ import (
 func RegisterAuthRoute(mux *chi.Mux, authService services.AuthService) {
 	mux.Route("/auth", func(r chi.Router){
 		r.Post("/login", handlers.LoingUserHandler(authService))
+		r.Post("/refresh", handlers.RefreshHandler(authService))
 	})
 }

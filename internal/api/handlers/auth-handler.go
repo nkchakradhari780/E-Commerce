@@ -84,3 +84,27 @@ func LoingUserHandler(authService services.AuthService) http.HandlerFunc {
 		}))
 	}
 }
+
+func RefreshHandler(authService services.AuthService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("refresh_token")
+		if err != nil {
+			if errors.Is(err, http.ErrNoCookie) {
+				response.WriteJson(w, http.StatusUnauthorized, response.GeneralError(fmt.Errorf("refresh token not found")))
+				return
+			}
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(fmt.Errorf("failed to read cookie")))
+			return
+		}
+
+		refreshToken := cookie.Value
+
+		_, err = authService.RefreshUserService(refreshToken)
+		if err != nil {
+			slog.Error("error","", err.Error())
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+			return
+		}
+
+	}
+}

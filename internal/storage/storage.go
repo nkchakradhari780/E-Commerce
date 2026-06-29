@@ -10,6 +10,7 @@ import (
 type Storage interface {
 	// Auth DB
 	CreateRefreshTokenDB(tokenId, userId uuid.UUID, tokenHash string, expiresAt time.Time) error
+	GetRefreshTokenDB(userId uuid.UUID, tokenHash string) (*modules.RefreshToken, error)
 
 	// User DB
 	CreateUserDB(user *modules.CreateUser) error 

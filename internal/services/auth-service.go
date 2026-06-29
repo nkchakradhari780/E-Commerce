@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -20,6 +21,7 @@ type AuthService interface {
 	UserLoginService(logReq *modules.LoginUser) (*modules.User, error)
 	GenerateRefreshToken(userId uuid.UUID, ttl time.Duration) (string, error)
 	GenerateAccessToken(userId uuid.UUID, ttl time.Duration) (string, error)
+	RefreshUserService(refreshToken string) (string, error)
 }
 
 type authService struct {
@@ -77,4 +79,24 @@ func (ls *authService) GenerateAccessToken(userId uuid.UUID, ttl time.Duration) 
 		return "", err
 	}
 	return accessToken, nil 
+}
+
+func (ls *authService) RefreshUserService(refreshToken string) (string, error) {
+
+	userId, err := custjwt.ValidateToken(refreshToken)
+	if err != nil {
+		return "", err
+	}
+
+	tokenHash := sha256.Sum256([]byte(refreshToken))
+	tokenHashStr := hex.EncodeToString(tokenHash[:])
+
+	tokenData, err := ls.storage.GetRefreshTokenDB(userId, tokenHashStr)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Println("tokenData", tokenData)
+
+	return "", err
 }
