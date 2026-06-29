@@ -51,7 +51,7 @@ func LoingUserHandler(authService services.AuthService) http.HandlerFunc {
 
 		fmt.Println("login Response: ", user)		
 
-		accessToken, err := authService.GenerateAccessToken(user.Id, 30 * time.Minute)
+		accessToken, err := authService.GenerateAccessToken(user.Id, 2 * time.Minute)
 		if err != nil {
 			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
 			return
@@ -99,12 +99,13 @@ func RefreshHandler(authService services.AuthService) http.HandlerFunc {
 
 		refreshToken := cookie.Value
 
-		_, err = authService.RefreshUserService(refreshToken)
+		accessToken, err := authService.RefreshUserService(refreshToken)
 		if err != nil {
 			slog.Error("error","", err.Error())
 			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 			return
 		}
 
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralSuccess(map[string]string{"access_token": accessToken}))
 	}
 }

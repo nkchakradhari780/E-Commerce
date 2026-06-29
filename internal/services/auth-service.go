@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"log/slog"
 	"time"
 
@@ -63,7 +62,7 @@ func (ls *authService) GenerateRefreshToken(userId uuid.UUID, ttl time.Duration)
 
 	tokenHash:= sha256.Sum256([]byte(refreshToken))
 	tokenHashStr := hex.EncodeToString(tokenHash[:])
-	expiresAt := time.Now().Add(ttl).UTC().Local()
+	expiresAt := time.Now().UTC().Add(ttl)
 	tokenId := uuid.New()
 
 	if err := ls.storage.CreateRefreshTokenDB(tokenId, userId, tokenHashStr, expiresAt); err != nil {
@@ -96,7 +95,14 @@ func (ls *authService) RefreshUserService(refreshToken string) (string, error) {
 		return "", err
 	}
 
-	fmt.Println("tokenData", tokenData)
+	now := time.Now().UTC()
+	var accessToken string
+	if now.Before(tokenData.ExpiresAt) && tokenData.Revoked == false {
+		accessToken, err = ls.GenerateRefreshToken(userId, 30 * time.Minute)
+		if err != nil {
+			return "", err
+		}
+	}
 
-	return "", err
+	return accessToken, err
 }
